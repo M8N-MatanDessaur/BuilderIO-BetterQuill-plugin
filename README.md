@@ -38,7 +38,7 @@ Builder.io's default rich text field is limited. No tables, no font size control
 | Video embed modal | No | Yes |
 | Fullscreen editing (Word-style) | No | Yes |
 | HTML source view (CodeMirror 6) | No | Yes |
-| Undo / Redo toolbar buttons | No | Yes |
+| Empty space inserter | No | Yes |
 | Clear formatting button | No | Yes |
 | Superscript / Subscript | No | Yes |
 | Checklists | No | Yes |
@@ -62,7 +62,7 @@ Full formatting toolbar with dynamic state -- selecting bold text shows the bold
 - Indent / outdent
 - Blockquotes and code blocks
 - Clear formatting button (removes all formatting from selection)
-- Undo / Redo buttons (100-step history, also Ctrl+Z / Ctrl+Y)
+- Empty space inserter (visible spacer block, click to add, backspace to remove)
 
 ### Color Picker
 
