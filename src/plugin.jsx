@@ -67,8 +67,7 @@ function RichTextEditor(props) {
       [{ 'align': [] }],
       ['blockquote', 'code-block'],
       ['link', 'image', 'video'],
-      ['clean'],
-      ['linebreak']
+      ['clean']
     ];
 
     const quill = new Quill(editorRef.current, {
@@ -98,14 +97,6 @@ function RichTextEditor(props) {
 
     const toolbar = quill.getModule('toolbar');
 
-    // Line break handler
-    toolbar.addHandler('linebreak', function() {
-      const range = quill.getSelection(true);
-      if (range) {
-        quill.insertText(range.index, '\n');
-        quill.setSelection(range.index + 1);
-      }
-    });
 
     // Custom image handler -- modal with URL input or file upload
     toolbar.addHandler('image', function() {
@@ -192,11 +183,7 @@ function RichTextEditor(props) {
 
     const toolbarElement = containerRef.current.querySelector('.ql-toolbar');
     if (toolbarElement) {
-      const linebreakBtn = toolbarElement.querySelector('.ql-linebreak');
-      if (linebreakBtn) {
-        linebreakBtn.innerHTML = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M3 6h10v4H7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l-2-2 2-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        linebreakBtn.title = 'Insert Line Break';
-      }
+
 
       // Add table button with grid picker
       const tableButton = document.createElement('button');
