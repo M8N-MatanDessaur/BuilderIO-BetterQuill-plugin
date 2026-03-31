@@ -1,209 +1,256 @@
-# BetterQuill - Builder.io Plugin
+# BetterQuill for Builder.io
 
-> A superior rich text editing experience for Builder.io, surpassing the default Quill integration with modern features and professional UI.
+A production-grade rich text editor plugin for [Builder.io](https://builder.io) that replaces the default text editing experience with a full-featured, professionally designed WYSIWYG editor.
 
-**BetterQuill** is a comprehensive Quill.js-based rich text editor plugin for Builder.io that provides everything the default plugin offers and more — with advanced features including professional table management, dark/light themes, fullscreen editing, and a powerful CodeMirror-powered HTML code editor.
+Built for content teams who need real editorial control -- tables, font sizing, image alt text, HTML source editing, fullscreen mode, and a dark UI that stays out of the way.
 
-## Why BetterQuill?
+[![npm version](https://img.shields.io/npm/v/betterquill-builderio.svg)](https://www.npmjs.com/package/betterquill-builderio)
+[![license](https://img.shields.io/npm/l/betterquill-builderio.svg)](https://github.com/M8N-MatanDessaur/BuilderIO-BetterQuill-plugin/blob/main/LICENSE)
 
-The default Quill plugin in Builder.io is basic. **BetterQuill** takes it to the next level with:
+---
 
-✅ **Professional UI/UX** - Modern, polished interface with smooth animations  
-✅ **Dark & Light Modes** - Perfect contrast with `#191919` dark theme  
-✅ **Advanced Tables** - Full table editor with merge/split cells (powered by quill-better-table)  
-✅ **Code View** - Professional HTML editor with CodeMirror 6, syntax highlighting, and auto-formatting  
-✅ **Fullscreen Mode** - Distraction-free editing with centered 800px content area  
-✅ **Better Typography** - Improved spacing, line heights, and readability  
-✅ **Modern Controls** - Sleek buttons with hover effects and visual feedback  
+## Quick Start
+
+Add the plugin URL to your Builder.io account:
+
+```
+Settings > Plugins icon > Advanced Settings > Add:
+https://unpkg.com/betterquill-builderio/dist/plugin.system.js
+```
+
+Then add a **RichText** field to any model. That's it.
+
+---
+
+## Why This Exists
+
+Builder.io's default rich text field is limited. No tables, no font size control, no fullscreen, no source editing, no image alt text. BetterQuill fills every gap:
+
+| Feature | Default | BetterQuill |
+|---|---|---|
+| Bold, italic, underline, strike | Yes | Yes |
+| Headers (H1--H6) | Yes | Yes |
+| Text & background color | Yes | Yes |
+| Font size control (10px--72px) | No | Yes |
+| Tables with row/column management | No | Yes |
+| Image alt text & dimensions | No | Yes |
+| Link editing modal | No | Yes |
+| Fullscreen editing (Word-style) | No | Yes |
+| HTML source view (CodeMirror 6) | No | Yes |
+| Undo / Redo buttons | No | Yes |
+| Superscript / Subscript | No | Yes |
+| Checklists | No | Yes |
+| Dynamic toolbar state | No | Yes |
+| Dark editorial UI | No | Yes |
+
+---
 
 ## Features
 
-### 📝 Text Formatting
-- **Headers**: H1-H6 heading styles with proper contrast
-- **Text Styles**: Bold, Italic, Underline, Strikethrough
-- **Colors**: Full color picker for text and background highlighting
-- **Alignment**: Left, Center, Right, Justify
-- **Superscript/Subscript**: Scientific notation support
+### Text Formatting
 
-### 📋 Content Elements
-- **Lists**: Ordered, Bullet, and Checklist
-- **Indentation**: Increase/Decrease indent levels
-- **Blockquotes**: Quote formatting with accent border
-- **Code Blocks**: Inline code with modern styling
-- **Links**: Hyperlink management
-- **Images**: Insert and manage images
-- **Videos**: Embed video content
+Full formatting toolbar with dynamic state -- selecting bold text shows the bold button as active, selecting 24px text shows "24px" in the size picker, mixed sizes show "Mixed".
 
-### 🎨 Advanced Features
+- Headers H1--H6
+- Font size: 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72px
+- Bold, italic, underline, strikethrough
+- Text color and background color pickers
+- Superscript and subscript
+- Text alignment (left, center, right, justify)
+- Ordered lists, bullet lists, checklists
+- Indent / outdent
+- Blockquotes and code blocks
+- Clean formatting button
 
-#### Tables (quill-better-table)
-Full-featured table editor with context menu:
-- Insert/delete rows and columns
-- Merge and split cells
-- Right-click context menu for all operations
-- Clean, professional table styling
+### Tables
 
-#### Dark & Light Modes
-- **Dark Mode**: Professional `#191919` background with white text and perfect contrast
-- **Light Mode**: Clean white background with dark text
-- Consistent theming across all UI elements
-- Smooth theme transitions
+Click the table icon in the toolbar to open a visual grid picker (up to 8x8). Click a cell inside the table to reveal the table toolbar:
 
-#### Fullscreen Mode
-- Distraction-free editing experience
-- Centered content area (800px max-width)
-- Full viewport height with `100svh`
-- Maintains theme and functionality
+- Insert row above / below
+- Insert column left / right
+- Delete row / column
+- Delete entire table
 
-#### Code View (CodeMirror 6)
-Professional HTML source editor:
-- **Syntax Highlighting**: Full HTML syntax coloring
-- **Auto-Formatting**: Beautiful code with proper indentation (js-beautify)
-- **Line Numbers**: Professional gutter display
-- **Editable**: Make changes directly in source code
-- **Theme Support**: One Dark theme in dark mode
+Tables render with visible borders on the dark background and support horizontal scrolling for wide content.
 
-### 🎨 Modern UI Design
-- Smooth transitions and hover effects
-- Clean button design with visual feedback
-- Custom styled scrollbars
-- Professional spacing and typography
-- Visible borders with `#393939` in dark mode
-- Centered toolbar icons with flexbox
-- Glass morphism effects on control bar
+### Images
+
+Click any image in the editor to open the image properties modal:
+
+- **Alt text** -- for SEO and accessibility
+- **Width** and **Height** -- set dimensions (pixels or percentage)
+- **Delete** -- remove the image
+
+### Links
+
+Click any link in the editor to open the link properties modal, or select text and click the link toolbar button to create a new link:
+
+- **URL** -- the link destination
+- **Text** -- the visible link text
+- **Open in new tab** -- toggle `target="_blank"`
+- **Unlink** -- remove the link, keep the text
+
+Replaces Quill's built-in tooltip (which overflows and can't be closed) with a proper modal.
+
+### Fullscreen Mode
+
+Click **EXPAND** in the control bar. The editor goes full-viewport with a Word/Google Docs-style layout:
+
+- Toolbar spans the full width at the top
+- Dark background (`#111`) fills the viewport
+- Content sits on a centered 850px "page" with padding
+- Scrollbar at the far-right edge
+- Click **EXIT** to return to inline mode
+
+### Source View
+
+Click **SOURCE** in the control bar to switch to a CodeMirror 6 HTML editor:
+
+- Syntax highlighting (One Dark theme)
+- Line numbers
+- Auto-formatting via js-beautify
+- Line wrapping
+- Tab indentation support
+- Edits sync back to the visual editor on toggle
+
+### Undo / Redo
+
+Toolbar buttons with 100-step history. Also supports Ctrl+Z / Ctrl+Y keyboard shortcuts.
+
+### HTML Sanitization
+
+The editor sanitizes output before passing it to Builder.io:
+
+- Strips empty `<p><br></p>` tags (Quill generates these on Enter)
+- Removes empty `<p></p>` elements
+- Collapses 3+ consecutive `<br>` tags
+- Trims trailing `<br>` tags
+
+---
 
 ## Installation
 
-1. **Install Dependencies**
+### CDN (Recommended)
 
-```bash
-npm install
+No installation required. Add one of these URLs to Builder.io > Settings > Plugins:
+
+**unpkg:**
+```
+https://unpkg.com/betterquill-builderio/dist/plugin.system.js
 ```
 
-2. **Start Development Server**
+**jsDelivr:**
+```
+https://cdn.jsdelivr.net/npm/betterquill-builderio/dist/plugin.system.js
+```
+
+Pin the version for production stability. Use the unversioned URL (`betterquill-builderio/dist/plugin.system.js`) for auto-updates.
+
+### npm
+
+```bash
+npm install betterquill-builderio
+```
+
+### From Source
+
+```bash
+git clone https://github.com/M8N-MatanDessaur/BuilderIO-BetterQuill-plugin.git
+cd betterquill-builderio
+npm install
+npm run build
+```
+
+### Self-Hosted
+
+Build and upload `dist/plugin.system.js` to any static host (S3, Netlify, Vercel, GitHub Pages). Ensure CORS headers allow Builder.io's origin:
+
+```
+Access-Control-Allow-Origin: *
+```
+
+---
+
+## Builder.io Setup
+
+1. Go to Builder.io
+2. Click the **Plugins** icon in the left sidebar
+3. Click **Advanced Settings**
+4. Add the plugin URL
+5. Click **Save**
+5. Go to any **Model** > **+ New Field** > select type **RichText**
+
+The BetterQuill editor appears wherever you use a RichText field.
+
+---
+
+## Development
 
 ```bash
 npm start
 ```
 
-The plugin will be available at `http://localhost:1268/plugin.system.js`
+Starts webpack-dev-server on `http://localhost:1268`. Add `http://localhost:1268/plugin.system.js` as the plugin URL in Builder.io for local testing.
 
-3. **Build for Production**
-
-```bash
-npm run build
-```
-
-The production build will be in the `dist` folder.
-
-## Adding the Plugin to Builder.io
-
-### Local Development
-
-1. Start the development server: `npm start`
-2. Go to [Builder.io Account Settings](https://builder.io/account/settings)
-3. Click the pencil icon next to "Plugins"
-4. Add the local URL: `http://localhost:1268/plugin.system.js`
-5. Click Save
-
-**Note for Chrome Users**: When developing locally on `http://localhost`, you need to allow insecure content:
-- Click the shield icon in the address bar
-- Select "Load unsafe scripts"
-- The page will reload
-
-### Using the Plugin
-
-1. Go to **Models** in Builder.io
-2. Select or create a model
-3. Click **+ New Field**
-4. In the **Type** dropdown, scroll down and select **RichText**
-5. The rich text editor will appear with all features
-
-## Plugin Features Guide
-
-### 🌙 Dark Mode
-Click the **🌙 Dark** button to toggle between light and dark themes. This provides better visibility in different lighting conditions.
-
-### ⛶ Fullscreen Mode
-Click the **⛶ Fullscreen** button to expand the editor to full screen for focused, distraction-free editing.
-
-### </> Code View
-Click the **</> Code** button to toggle between:
-- **Visual Editor**: WYSIWYG editing experience
-- **HTML Source**: Direct HTML code editing for advanced users
-
-### ⊞ Tables
-Click the **⊞** button in the toolbar to insert a 3x3 table. Right-click on any cell to:
-- Insert rows above/below
-- Insert columns left/right
-- Merge/unmerge cells
-- Delete rows/columns/table
-
-## Technical Details
-
-### Core Dependencies
-- **Quill 2.0+**: Modern WYSIWYG editor
-- **quill-better-table**: Advanced table management with merge/split
-- **CodeMirror 6**: Professional code editor for HTML view
-- **js-beautify**: HTML auto-formatting and indentation
-- **@builder.io/react**: Builder.io React SDK
-- **@emotion/core**: CSS-in-JS styling
-
-### Key Technologies
-- **React**: Component-based architecture
-- **Webpack**: Module bundling and dev server
-- **System.js**: Dynamic module loading for Builder.io
-- **CSS-in-JS**: Dynamic theming with emotion
-
-### Browser Compatibility
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-
-## Customization
-
-BetterQuill is designed to be customizable. Edit `src/plugin.jsx` to modify:
-
-- **Toolbar Options**: Customize the `toolbarOptions` array
-- **Theme Colors**: Adjust dark/light mode colors in `containerStyles`
-- **Editor Behavior**: Modify Quill modules and settings
-- **UI Styling**: Update CSS-in-JS for buttons, borders, and spacing
-
-## Troubleshooting
-
-### Plugin Not Loading
-1. Verify the development server is running on port 1268
-2. Check browser console for errors
-3. Ensure you've allowed insecure scripts in Chrome (see installation notes)
-4. Confirm Builder.io plugin URL is correct
-
-### Code View Not Working
-1. Ensure all CodeMirror dependencies are installed
-2. Check that js-beautify is properly installed
-3. Clear browser cache and rebuild
-
-### Styling Issues
-1. Clear your browser cache
-2. Rebuild the plugin: `npm run build`
-3. Refresh Builder.io
-4. Check for CSS conflicts in browser DevTools
-
-## Author
-
-**Matan Dessaur** (M8N-MatanDessaur)  
-📧 [hello@matandessaur.me](mailto:hello@matandessaur.me)
-
-## License
-
-ISC License - Free to use and modify
-
-## Support & Contributing
-
-For issues, questions, or contributions:
-- 📧 Email: [hello@matandessaur.me](mailto:hello@matandessaur.me)
-- 📚 [Builder.io Documentation](https://www.builder.io/c/docs)
-- 📖 [Quill.js Documentation](https://quilljs.com/docs/)
+**Chrome users:** You may need to click the shield icon in the address bar and select "Load unsafe scripts" to allow the HTTP localhost plugin on Builder.io's HTTPS page.
 
 ---
 
-**BetterQuill** - Because your content deserves better. 🚀
+## Design
+
+BetterQuill uses a brutalist editorial design language:
+
+- **Background:** `#191919` (editor), `#1a1a1a` (toolbar/surfaces), `#111111` (fullscreen backdrop)
+- **Borders:** `#333333`, 1px solid throughout
+- **Text:** `#e0e0e0` (primary), `#a0a0a0` (secondary), `#666666` (tertiary)
+- **Accent:** `#e0e0e0` inverted on hover/active (light on dark becomes dark on light)
+- **Typography:** System sans-serif for content, Courier New monospace for UI labels
+- **Controls:** Uppercase, letter-spaced, no border-radius, no transitions (instant feedback)
+- **Selection:** `rgba(100, 160, 255, 0.3)` highlight
+
+---
+
+## Tech Stack
+
+| Dependency | Purpose |
+|---|---|
+| [Quill 2.0](https://quilljs.com/) | WYSIWYG editor core |
+| [quill-better-table](https://github.com/soccerloway/quill-better-table) | Table support |
+| [CodeMirror 6](https://codemirror.net/) | HTML source editor |
+| [js-beautify](https://github.com/beautifier/js-beautify) | HTML auto-formatting |
+| [@builder.io/react](https://www.builder.io/) | Builder.io plugin SDK |
+| [@emotion/core](https://emotion.sh/) | CSS-in-JS (provided by Builder.io runtime) |
+| [Webpack 5](https://webpack.js.org/) | Bundling (System.js output for Builder.io) |
+
+---
+
+## Publishing
+
+```bash
+npm version patch   # or minor / major
+npm publish         # runs build automatically via prepublishOnly
+```
+
+The package is immediately available on unpkg and jsDelivr after publishing.
+
+---
+
+## Browser Support
+
+- Chrome / Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+
+---
+
+## License
+
+[ISC](LICENSE) -- Matan Dessaur
+
+---
+
+## Links
+
+- [npm](https://www.npmjs.com/package/betterquill-builderio)
+- [GitHub](https://github.com/M8N-MatanDessaur/BuilderIO-BetterQuill-plugin)
+- [Builder.io Plugin Docs](https://www.builder.io/c/docs/extending/plugins)
