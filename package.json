@@ -1,6 +1,6 @@
 {
   "name": "betterquill-builderio",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "BetterQuill - A superior Builder.io plugin with advanced features: tables, dark mode, fullscreen, and CodeMirror-powered code view",
   "keywords": [
     "builder.io",

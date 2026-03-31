@@ -14,11 +14,11 @@ Built for content teams who need real editorial control -- tables, font sizing, 
 Add the plugin URL to your Builder.io account:
 
 ```
-Settings > Plugins icon > Advanced Settings > Add:
+Plugins icon > Advanced Settings > Add:
 https://unpkg.com/betterquill-builderio/dist/plugin.system.js
 ```
 
-Then add a **RichText** field to any model. That's it.
+Then use **RichText** as the field type in any model. That's it.
 
 ---
 
@@ -30,17 +30,19 @@ Builder.io's default rich text field is limited. No tables, no font size control
 |---|---|---|
 | Bold, italic, underline, strike | Yes | Yes |
 | Headers (H1--H6) | Yes | Yes |
-| Text & background color | Yes | Yes |
+| Text color & highlight color | Basic | Custom modal with 80 swatches + native picker |
 | Font size control (10px--72px) | No | Yes |
-| Tables with row/column management | No | Yes |
-| Image alt text & dimensions | No | Yes |
-| Link editing modal | No | Yes |
+| Tables with row/column management | No | Yes (grid picker + toolbar) |
+| Image alt text & dimensions | No | Yes (click image to edit) |
+| Link editing modal | No | Yes (URL, text, new tab toggle) |
+| Video embed modal | No | Yes |
 | Fullscreen editing (Word-style) | No | Yes |
 | HTML source view (CodeMirror 6) | No | Yes |
-| Undo / Redo buttons | No | Yes |
+| Undo / Redo toolbar buttons | No | Yes |
+| Clear formatting button | No | Yes |
 | Superscript / Subscript | No | Yes |
 | Checklists | No | Yes |
-| Dynamic toolbar state | No | Yes |
+| Dynamic toolbar state | No | Yes (reflects current selection) |
 | Dark editorial UI | No | Yes |
 
 ---
@@ -54,13 +56,25 @@ Full formatting toolbar with dynamic state -- selecting bold text shows the bold
 - Headers H1--H6
 - Font size: 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72px
 - Bold, italic, underline, strikethrough
-- Text color and background color pickers
 - Superscript and subscript
 - Text alignment (left, center, right, justify)
 - Ordered lists, bullet lists, checklists
 - Indent / outdent
 - Blockquotes and code blocks
-- Clean formatting button
+- Clear formatting button (removes all formatting from selection)
+- Undo / Redo buttons (100-step history, also Ctrl+Z / Ctrl+Y)
+
+### Color Picker
+
+Click the text color (A) or highlight icon in the toolbar to open a custom color modal:
+
+- 80 color swatches organized in a 10-column grid (light to dark)
+- "Remove color" button to clear the color
+- Native OS color picker for custom colors (stays open while you pick)
+- Apply button to confirm custom color
+- Toolbar icon updates to reflect the currently selected text's color
+
+Replaces Quill's built-in color dropdown (which was invisible on dark backgrounds).
 
 ### Tables
 
@@ -71,7 +85,7 @@ Click the table icon in the toolbar to open a visual grid picker (up to 8x8). Cl
 - Delete row / column
 - Delete entire table
 
-Tables render with visible borders on the dark background and support horizontal scrolling for wide content.
+Tables render with visible borders (`#444444`) on the dark background and support horizontal scrolling.
 
 ### Images
 
@@ -92,14 +106,21 @@ Click any link in the editor to open the link properties modal, or select text a
 
 Replaces Quill's built-in tooltip (which overflows and can't be closed) with a proper modal.
 
+### Video Embed
+
+Click the video icon in the toolbar to open the video embed modal:
+
+- Enter a video URL (YouTube embed, Vimeo, or direct video URL)
+- Insert into the editor at the cursor position
+
 ### Fullscreen Mode
 
 Click **EXPAND** in the control bar. The editor goes full-viewport with a Word/Google Docs-style layout:
 
-- Toolbar spans the full width at the top
+- Sticky toolbar spans the full width at the top
 - Dark background (`#111`) fills the viewport
-- Content sits on a centered 850px "page" with padding
-- Scrollbar at the far-right edge
+- Content sits on a centered 850px "page" with padding and border
+- Single scrollbar on the editor wrapper
 - Click **EXIT** to return to inline mode
 
 ### Source View
@@ -112,10 +133,6 @@ Click **SOURCE** in the control bar to switch to a CodeMirror 6 HTML editor:
 - Line wrapping
 - Tab indentation support
 - Edits sync back to the visual editor on toggle
-
-### Undo / Redo
-
-Toolbar buttons with 100-step history. Also supports Ctrl+Z / Ctrl+Y keyboard shortcuts.
 
 ### HTML Sanitization
 
@@ -132,7 +149,7 @@ The editor sanitizes output before passing it to Builder.io:
 
 ### CDN (Recommended)
 
-No installation required. Add one of these URLs to Builder.io > Settings > Plugins:
+No installation required. Add one of these URLs in Builder.io:
 
 **unpkg:**
 ```
@@ -144,8 +161,6 @@ https://unpkg.com/betterquill-builderio/dist/plugin.system.js
 https://cdn.jsdelivr.net/npm/betterquill-builderio/dist/plugin.system.js
 ```
 
-Pin the version for production stability. Use the unversioned URL (`betterquill-builderio/dist/plugin.system.js`) for auto-updates.
-
 ### npm
 
 ```bash
@@ -156,7 +171,7 @@ npm install betterquill-builderio
 
 ```bash
 git clone https://github.com/M8N-MatanDessaur/BuilderIO-BetterQuill-plugin.git
-cd betterquill-builderio
+cd BuilderIO-BetterQuill-plugin
 npm install
 npm run build
 ```
@@ -178,7 +193,7 @@ Access-Control-Allow-Origin: *
 3. Click **Advanced Settings**
 4. Add the plugin URL
 5. Click **Save**
-5. Go to any **Model** > **+ New Field** > select type **RichText**
+6. In any **Model**, add or change a field type to **RichText**
 
 The BetterQuill editor appears wherever you use a RichText field.
 
@@ -203,10 +218,12 @@ BetterQuill uses a brutalist editorial design language:
 - **Background:** `#191919` (editor), `#1a1a1a` (toolbar/surfaces), `#111111` (fullscreen backdrop)
 - **Borders:** `#333333`, 1px solid throughout
 - **Text:** `#e0e0e0` (primary), `#a0a0a0` (secondary), `#666666` (tertiary)
+- **Tables:** `#444444` borders, `#1f1f1f` row hover
 - **Accent:** `#e0e0e0` inverted on hover/active (light on dark becomes dark on light)
 - **Typography:** System sans-serif for content, Courier New monospace for UI labels
-- **Controls:** Uppercase, letter-spaced, no border-radius, no transitions (instant feedback)
+- **Controls:** Uppercase, letter-spaced, no border-radius, instant feedback
 - **Selection:** `rgba(100, 160, 255, 0.3)` highlight
+- **Modals:** Overlay with `rgba(0, 0, 0, 0.8)`, `#1a1a1a` background, consistent across link/image/video/color
 
 ---
 
@@ -231,8 +248,6 @@ npm version patch   # or minor / major
 npm publish         # runs build automatically via prepublishOnly
 ```
 
-The package is immediately available on unpkg and jsDelivr after publishing.
-
 ---
 
 ## Browser Support
@@ -245,7 +260,7 @@ The package is immediately available on unpkg and jsDelivr after publishing.
 
 ## License
 
-[ISC](LICENSE) -- Matan Dessaur
+[ISC](LICENSE) -- Matan Dessaur, 2026
 
 ---
 
