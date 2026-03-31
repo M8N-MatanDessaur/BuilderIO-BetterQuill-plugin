@@ -234,9 +234,8 @@ function RichTextEditor(props) {
       // Style the spacer button with text label
       const spacerBtn = toolbarElement.querySelector('.ql-spacer');
       if (spacerBtn) {
-        spacerBtn.innerHTML = 'Empty Space';
-        spacerBtn.className = 'ql-spacer bq-spacer-btn';
-        spacerBtn.title = 'Insert Empty Space';
+        spacerBtn.innerHTML = '<svg viewBox="0 0 18 18" width="16" height="16"><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/><line x1="3" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1"/><line x1="3" y1="14" x2="15" y2="14" stroke="currentColor" stroke-width="1"/></svg>';
+        spacerBtn.title = 'Insert Empty Line';
       }
 
       // Intercept color picker clicks to open our modal
@@ -1259,26 +1258,6 @@ function RichTextEditor(props) {
       background: #2a2a2a;
     }
 
-    /* Spacer button */
-    .bq-spacer-btn {
-      width: auto !important;
-      height: 28px !important;
-      padding: 4px 10px !important;
-      font-size: 10px !important;
-      font-family: 'Courier New', monospace !important;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #a0a0a0;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .bq-spacer-btn:hover {
-      background: #2a2a2a;
-      color: #e0e0e0;
-    }
 
     /* Spacer element in editor */
     .bq-spacer {
@@ -1294,7 +1273,7 @@ function RichTextEditor(props) {
     }
 
     .bq-spacer::before {
-      content: 'EMPTY SPACE';
+      content: 'EMPTY LINE';
       position: absolute;
       top: 50%;
       left: 50%;
