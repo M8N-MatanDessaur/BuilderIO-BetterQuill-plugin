@@ -18,6 +18,24 @@ import 'quill-better-table/dist/quill-better-table.css';
 // Register the table module
 Quill.register('modules/better-table', QuillBetterTable);
 
+// Register spacer blot -- a visible empty space element
+const BlockEmbed = Quill.import('blots/block/embed');
+class SpacerBlot extends BlockEmbed {
+  static create() {
+    const node = super.create();
+    node.setAttribute('data-spacer', 'true');
+    node.innerHTML = '&nbsp;';
+    return node;
+  }
+  static value(node) {
+    return true;
+  }
+}
+SpacerBlot.blotName = 'spacer';
+SpacerBlot.tagName = 'div';
+SpacerBlot.className = 'bq-spacer';
+Quill.register(SpacerBlot);
+
 // Register font size as a whitelist
 const SizeStyle = Quill.import('attributors/style/size');
 SizeStyle.whitelist = [
@@ -27,12 +45,13 @@ Quill.register(SizeStyle, true);
 
 function sanitizeHtml(html) {
   if (!html) return html;
-  // Collapse 3+ consecutive empty paragraphs into one
-  let cleaned = html.replace(/(<p>\s*<br\s*\/?>\s*<\/p>\s*){3,}/gi, '<p><br></p>');
+  // Remove empty paragraphs (Quill generates these on Enter)
+  let cleaned = html.replace(/<p>\s*<br\s*\/?>\s*<\/p>/gi, '');
+  cleaned = cleaned.replace(/<p>\s*<\/p>/gi, '');
   // Collapse 3+ consecutive <br> into two
   cleaned = cleaned.replace(/(<br\s*\/?>){3,}/gi, '<br><br>');
-  // Trim trailing empty paragraphs (keep content clean at the end)
-  cleaned = cleaned.replace(/(<p>\s*<br\s*\/?>\s*<\/p>\s*)+$/gi, '');
+  // Trim trailing <br>
+  cleaned = cleaned.replace(/(<br\s*\/?>)+\s*$/gi, '');
   return cleaned;
 }
 
@@ -67,7 +86,8 @@ function RichTextEditor(props) {
       [{ 'align': [] }],
       ['blockquote', 'code-block'],
       ['link', 'image', 'video'],
-      ['clean']
+      ['clean'],
+      ['spacer']
     ];
 
     const quill = new Quill(editorRef.current, {
@@ -97,6 +117,14 @@ function RichTextEditor(props) {
 
     const toolbar = quill.getModule('toolbar');
 
+    // Spacer handler
+    toolbar.addHandler('spacer', function() {
+      const range = quill.getSelection(true);
+      if (range) {
+        quill.insertEmbed(range.index, 'spacer', true, 'user');
+        quill.setSelection(range.index + 1);
+      }
+    });
 
     // Custom image handler -- modal with URL input or file upload
     toolbar.addHandler('image', function() {
@@ -202,6 +230,14 @@ function RichTextEditor(props) {
         });
       });
       toolbarElement.appendChild(tableButton);
+
+      // Style the spacer button with text label
+      const spacerBtn = toolbarElement.querySelector('.ql-spacer');
+      if (spacerBtn) {
+        spacerBtn.innerHTML = 'Empty Space';
+        spacerBtn.className = 'ql-spacer bq-spacer-btn';
+        spacerBtn.title = 'Insert Empty Space';
+      }
 
       // Intercept color picker clicks to open our modal
       const colorPicker = toolbarElement.querySelector('.ql-picker.ql-color');
@@ -1221,6 +1257,62 @@ function RichTextEditor(props) {
 
     .bq-table-btn:hover {
       background: #2a2a2a;
+    }
+
+    /* Spacer button */
+    .bq-spacer-btn {
+      width: auto !important;
+      height: 28px !important;
+      padding: 4px 10px !important;
+      font-size: 10px !important;
+      font-family: 'Courier New', monospace !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #a0a0a0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .bq-spacer-btn:hover {
+      background: #2a2a2a;
+      color: #e0e0e0;
+    }
+
+    /* Spacer element in editor */
+    .bq-spacer {
+      display: block;
+      height: 24px;
+      min-height: 24px;
+      border: 1px dashed #333333;
+      background: rgba(255, 255, 255, 0.02);
+      margin: 4px 0;
+      position: relative;
+      cursor: pointer;
+      user-select: all;
+    }
+
+    .bq-spacer::before {
+      content: 'EMPTY SPACE';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 9px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      color: #333333;
+      pointer-events: none;
+    }
+
+    .bq-spacer:hover {
+      border-color: #666666;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .bq-spacer:hover::before {
+      color: #666666;
     }
 
     /* Table cell styling */
