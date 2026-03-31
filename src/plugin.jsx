@@ -27,10 +27,12 @@ Quill.register(SizeStyle, true);
 
 function sanitizeHtml(html) {
   if (!html) return html;
-  let cleaned = html.replace(/<p>\s*<br\s*\/?>\s*<\/p>/gi, '');
-  cleaned = cleaned.replace(/<p>\s*<\/p>/gi, '');
+  // Collapse 3+ consecutive empty paragraphs into one
+  let cleaned = html.replace(/(<p>\s*<br\s*\/?>\s*<\/p>\s*){3,}/gi, '<p><br></p>');
+  // Collapse 3+ consecutive <br> into two
   cleaned = cleaned.replace(/(<br\s*\/?>){3,}/gi, '<br><br>');
-  cleaned = cleaned.replace(/(<br\s*\/?>)+\s*$/gi, '');
+  // Trim trailing empty paragraphs (keep content clean at the end)
+  cleaned = cleaned.replace(/(<p>\s*<br\s*\/?>\s*<\/p>\s*)+$/gi, '');
   return cleaned;
 }
 
@@ -66,18 +68,13 @@ function RichTextEditor(props) {
       ['blockquote', 'code-block'],
       ['link', 'image', 'video'],
       ['clean'],
-      ['undo', 'redo']
+      ['linebreak']
     ];
 
     const quill = new Quill(editorRef.current, {
       theme: 'snow',
       modules: {
         toolbar: toolbarOptions,
-        history: {
-          delay: 1000,
-          maxStack: 100,
-          userOnly: true
-        },
         'better-table': {
           operationMenu: {
             items: {
@@ -101,14 +98,27 @@ function RichTextEditor(props) {
 
     const toolbar = quill.getModule('toolbar');
 
-    // Undo/redo handlers
-    toolbar.addHandler('undo', function() {
-      const history = quill.getModule('history');
-      if (history) history.undo();
+    // Line break handler
+    toolbar.addHandler('linebreak', function() {
+      const range = quill.getSelection(true);
+      if (range) {
+        quill.insertText(range.index, '\n');
+        quill.setSelection(range.index + 1);
+      }
     });
-    toolbar.addHandler('redo', function() {
-      const history = quill.getModule('history');
-      if (history) history.redo();
+
+    // Custom image handler -- modal with URL input or file upload
+    toolbar.addHandler('image', function() {
+      const range = quill.getSelection(true);
+      setImageModal({
+        element: null,
+        alt: '',
+        width: '',
+        height: '',
+        src: '',
+        range: range,
+        isNew: true
+      });
     });
 
     // Custom link handler -- use our modal instead of Quill's tooltip
@@ -182,16 +192,10 @@ function RichTextEditor(props) {
 
     const toolbarElement = containerRef.current.querySelector('.ql-toolbar');
     if (toolbarElement) {
-      // Add undo/redo button icons
-      const undoBtn = toolbarElement.querySelector('.ql-undo');
-      if (undoBtn) {
-        undoBtn.innerHTML = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M3 8c0 0 1.5-5 7-5s7 4 7 7-3 5-6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M1 5l2 3 3-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        undoBtn.title = 'Undo';
-      }
-      const redoBtn = toolbarElement.querySelector('.ql-redo');
-      if (redoBtn) {
-        redoBtn.innerHTML = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M15 8c0 0-1.5-5-7-5s-7 4-7 7 3 5 6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17 5l-2 3-3-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        redoBtn.title = 'Redo';
+      const linebreakBtn = toolbarElement.querySelector('.ql-linebreak');
+      if (linebreakBtn) {
+        linebreakBtn.innerHTML = '<svg viewBox="0 0 18 18" width="16" height="16"><path d="M3 6h10v4H7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l-2-2 2-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        linebreakBtn.title = 'Insert Line Break';
       }
 
       // Add table button with grid picker
@@ -631,23 +635,56 @@ function RichTextEditor(props) {
 
 
   const saveImageProps = () => {
-    if (!imageModal || !imageModal.element) return;
-    const img = imageModal.element;
-    img.setAttribute('alt', imageModal.alt || '');
-    if (imageModal.width) {
-      img.setAttribute('width', imageModal.width);
-    } else {
-      img.removeAttribute('width');
-    }
-    if (imageModal.height) {
-      img.setAttribute('height', imageModal.height);
-    } else {
-      img.removeAttribute('height');
+    if (!imageModal) return;
+
+    if (imageModal.isNew && imageModal.src && quillRef.current) {
+      // Insert new image
+      const range = imageModal.range || quillRef.current.getSelection() || { index: quillRef.current.getLength() };
+      quillRef.current.insertEmbed(range.index, 'image', imageModal.src);
+      // Set alt text after insert
+      if (imageModal.alt) {
+        setTimeout(() => {
+          const imgs = quillRef.current.root.querySelectorAll('img[src="' + imageModal.src + '"]');
+          const newImg = imgs[imgs.length - 1];
+          if (newImg) {
+            newImg.setAttribute('alt', imageModal.alt);
+            if (imageModal.width) newImg.setAttribute('width', imageModal.width);
+            if (imageModal.height) newImg.setAttribute('height', imageModal.height);
+          }
+        }, 50);
+      }
+    } else if (imageModal.element) {
+      // Edit existing image
+      const img = imageModal.element;
+      if (imageModal.src && imageModal.src !== img.getAttribute('src')) {
+        img.setAttribute('src', imageModal.src);
+      }
+      img.setAttribute('alt', imageModal.alt || '');
+      if (imageModal.width) {
+        img.setAttribute('width', imageModal.width);
+      } else {
+        img.removeAttribute('width');
+      }
+      if (imageModal.height) {
+        img.setAttribute('height', imageModal.height);
+      } else {
+        img.removeAttribute('height');
+      }
     }
     if (props.onChange && quillRef.current) {
       props.onChange(sanitizeHtml(quillRef.current.root.innerHTML));
     }
     setImageModal(null);
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageModal(prev => ({ ...prev, src: reader.result }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const deleteImage = () => {
@@ -1466,6 +1503,36 @@ function RichTextEditor(props) {
       gap: 0;
     }
 
+    .image-upload-input {
+      width: 100%;
+      padding: 8px;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      border: 1px solid #333333;
+      background: #191919;
+      color: #a0a0a0;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    .image-upload-input::file-selector-button {
+      padding: 4px 12px;
+      border: 1px solid #333333;
+      background: #2a2a2a;
+      color: #a0a0a0;
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+
+    .image-upload-input::file-selector-button:hover {
+      background: #e0e0e0;
+      color: #191919;
+    }
+
     .image-modal-actions {
       padding: 12px 16px;
       display: flex;
@@ -1824,10 +1891,32 @@ function RichTextEditor(props) {
       {imageModal && (
         <div className="image-modal-overlay" onClick={() => setImageModal(null)}>
           <div className="image-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="image-modal-header">Image Properties</div>
-            <div className="image-modal-preview">
-              <img src={imageModal.src} alt="Preview" />
+            <div className="image-modal-header">{imageModal.isNew ? 'Insert Image' : 'Image Properties'}</div>
+            {imageModal.src && (
+              <div className="image-modal-preview">
+                <img src={imageModal.src} alt="Preview" />
+              </div>
+            )}
+            <div className="image-modal-field">
+              <label>Image URL</label>
+              <input
+                type="text"
+                value={imageModal.src}
+                onChange={(e) => setImageModal({ ...imageModal, src: e.target.value })}
+                placeholder="https://..."
+              />
             </div>
+            {imageModal.isNew && (
+              <div className="image-modal-field">
+                <label>Or Upload File</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="image-upload-input"
+                />
+              </div>
+            )}
             <div className="image-modal-field">
               <label>Alt Text</label>
               <input
@@ -1858,10 +1947,11 @@ function RichTextEditor(props) {
               </div>
             </div>
             <div className="image-modal-actions">
-              <button className="image-modal-delete" onClick={deleteImage}>Delete</button>
+              {!imageModal.isNew && <button className="image-modal-delete" onClick={deleteImage}>Delete</button>}
+              {imageModal.isNew && <div />}
               <div className="image-modal-actions-right">
                 <button className="image-modal-cancel" onClick={() => setImageModal(null)}>Cancel</button>
-                <button className="image-modal-save" onClick={saveImageProps}>Save</button>
+                <button className="image-modal-save" onClick={saveImageProps}>{imageModal.isNew ? 'Insert' : 'Save'}</button>
               </div>
             </div>
           </div>
